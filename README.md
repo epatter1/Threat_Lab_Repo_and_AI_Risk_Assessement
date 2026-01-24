@@ -6,8 +6,7 @@
 * #### Document findings with diagrams and case studies  
 #### Deliverables:
 
-* Threat Lab Repo + AI Risk Assessment Template
-
+* Threat Lab Repo + AI Risk Assessment Template: [Link to walkthough](https://github.com/epatter1/Threat_Lab_Repo_and_AI_Risk_Assessement/blob/main/Threat_Lab_walkthough.md)
 ---
 
 ## **Technologies, Frameworks & Cloud Services Used**
