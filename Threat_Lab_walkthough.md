@@ -1772,5 +1772,3 @@ module1-threat-lab-multicloud/
 ---
 
 **Next:** [Week 2 Walkthrough](#) - Model Extraction, Data Poisoning, Model Inversion, Risk Engine
-
-Let me know when you're ready for Week 2! 🚀
