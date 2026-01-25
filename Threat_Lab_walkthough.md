@@ -1708,7 +1708,7 @@ Layer 5: Model Storage / Deployment
 
 **Status:** Week 1 Complete ✅  
 **Next:** Week 2 - Model Extraction, Poisoning, Inversion
-```
+
 
 Save diagrams as images using tools like:
 - **draw.io** (diagrams.net)
@@ -1771,4 +1771,4 @@ module1-threat-lab-multicloud/
 
 ---
 
-**Next:** [Week 2 Walkthrough](#) - Model Extraction, Data Poisoning, Model Inversion, Risk Engine
+**Next:** [Week 2 Walkthrough](https://github.com/epatter1/AI_Data_Security_Architect_Program/blob/main/12_week_overview.md) - Model Extraction, Data Poisoning, Model Inversion, Risk Engine
