@@ -1,0 +1,11 @@
+{
+  "architecture": "SimpleConvNet",
+  "input_shape": "(1, 28, 28)",
+  "output_classes": 10,
+  "total_parameters": 421642,
+  "test_accuracy": 99.25,
+  "training_epochs": 5,
+  "purpose": "Baseline model for AI threat lab adversarial attack demonstrations",
+  "dataset": "MNIST",
+  "threat_relevance": "Demonstrates model vulnerability to adversarial attacks"
+}
