@@ -1,4 +1,8 @@
-# **Weeks 1–2 — Module 1: AI Threat Lab (AWS, Azure, GCP)**  
+# **Weeks 1–2 — Module 1: AI Threat Lab (AWS, Azure, GCP)**
+
+
+This is Module 1 of 5 of a [12-week Security Architect Program](https://github.com/epatter1/AI_Data_Security_Architect_Program/blob/main/12_week_overview.md)
+
 ### Focus areas
 * #### Build evasion, extraction, poisoning, inversion demos 
 * #### Implement cloud-specific attack surfaces
