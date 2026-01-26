@@ -1771,4 +1771,4 @@ module1-threat-lab-multicloud/
 
 ---
 
-**Next:** [Week 2 Walkthrough](https://github.com/epatter1/AI_Data_Security_Architect_Program/blob/main/12_week_overview.md) - Model Extraction, Data Poisoning, Model Inversion, Risk Engine
+**Next:** [Week 2 Walkthrough](https://github.com/epatter1/Threat_Lab_Repo_and_AI_Risk_Assessement/blob/main/AI_Risk_Assessment_template_week2.md) - Model Extraction, Data Poisoning, Model Inversion, Risk Engine
