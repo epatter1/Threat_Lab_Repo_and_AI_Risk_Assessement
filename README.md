@@ -10,7 +10,7 @@ This is Module 1 of 5 of a [12-week Security Architect Program](https://github.c
 * #### Document findings with diagrams and case studies  
 #### Deliverables:
 
-* Threat Lab Repo + AI Risk Assessment Template: [Link to walkthough](https://github.com/epatter1/Threat_Lab_Repo_and_AI_Risk_Assessement/blob/main/Threat_Lab_walkthough.md)
+* Threat Lab Repo + AI Risk Assessment Template: [Link to walkthough](https://github.com/epatter1/Threat_Lab_Repo_and_AI_Risk_Assessement/blob/main/Threat_Lab_walkthough_week1.md)
 ---
 
 ## **Technologies, Frameworks & Cloud Services Used**
