@@ -5044,11 +5044,10 @@ Create `docs/ai_risk_assessment_template.md`:
 - _[Who are the end users?]_
 
 **Example:**
-```
-Business Purpose: Fraud detection for credit card transactions
-Decisions: Flag transactions as fraudulent or legitimate
-End Users: Internal fraud analysts and automated systems
-```
+
+* Business Purpose: Fraud detection for credit card transactions
+* Decisions: Flag transactions as fraudulent or legitimate
+* End Users: Internal fraud analysts and automated systems
 
 ### 1.2 Model Information
 
