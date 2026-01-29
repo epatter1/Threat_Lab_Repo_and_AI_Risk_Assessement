@@ -4981,3 +4981,1149 @@ if len(backdoor_scan_results) > 10:
 * Criminal Charges: Filed (insider threat prosecution)  
 * Status: RESOLVED (new safeguards in place)
 ---
+
+## **Step 8: AI Risk Assessment Template (60 minutes)**
+
+Create a production-ready, reusable risk assessment template:
+
+Create `docs/ai_risk_assessment_template.md`:
+
+## AI/ML System Risk Assessment Template
+
+**Version:** 2.0  
+**Last Updated:** Week 2, Day 7  
+**Framework:** NIST AI RMF + MITRE ATLAS + OWASP Top 10 for LLMs
+
+---
+
+## Document Control
+
+| Field | Value |
+|-------|-------|
+| **System Name** | _[Enter system name]_ |
+| **Assessment Date** | _[YYYY-MM-DD]_ |
+| **Assessor(s)** | _[Names and roles]_ |
+| **Review Date** | _[Next review date]_ |
+| **Classification** | _[Public / Internal / Confidential / Restricted]_ |
+
+---
+
+## Executive Summary
+
+**Purpose:** Provide a concise summary of the AI/ML system risk posture.
+
+### Quick Risk Overview
+
+| Category | Risk Level | Score | Status |
+|----------|-----------|-------|--------|
+| **Overall Risk** | _[Low/Medium/High/Critical]_ | _[X.XX/5.00]_ | 🔴/🟠/🟡/🟢 |
+| Model Security | _[Level]_ | _[Score]_ | _[Emoji]_ |
+| Data Privacy | _[Level]_ | _[Score]_ | _[Emoji]_ |
+| Deployment Exposure | _[Level]_ | _[Score]_ | _[Emoji]_ |
+| Compliance | _[Level]_ | _[Score]_ | _[Emoji]_ |
+
+### Key Findings
+1. _[Most critical risk]_
+2. _[Second most critical risk]_
+3. _[Third most critical risk]_
+
+### Recommended Actions (Top 3)
+1. _[Highest priority mitigation]_
+2. _[Second priority mitigation]_
+3. _[Third priority mitigation]_
+
+---
+
+## Section 1: System Overview
+
+### 1.1 Use Case Description
+
+**Business Purpose:**
+- _[What business problem does this ML system solve?]_
+- _[What decisions does it make?]_
+- _[Who are the end users?]_
+
+**Example:**
+```
+Business Purpose: Fraud detection for credit card transactions
+Decisions: Flag transactions as fraudulent or legitimate
+End Users: Internal fraud analysts and automated systems
+```
+
+### 1.2 Model Information
+
+**Model Type:**
+- [ ] Classification
+- [ ] Regression
+- [ ] Clustering
+- [ ] Generative (LLM, diffusion, etc.)
+- [ ] Reinforcement Learning
+- [ ] Other: _[Specify]_
+
+**Model Architecture:**
+
+* Architecture: _[e.g., ResNet-50, XGBoost, GPT-4, etc.]_
+* Parameters: _[Number of parameters]_
+* Input: _[Input format and shape]_
+* Output: _[Output format and shape]_
+* Framework: _[PyTorch, TensorFlow, scikit-learn, etc.]_
+
+**Training Information:**
+
+* Training Data: _[Description, size, source]_
+* Training Time: _[Duration]_
+* Training Cost: _[Estimated cost]_
+* Last Trained: _[Date]_
+* Retraining Frequency: _[Schedule]_
+
+**Performance Metrics:**
+
+* Accuracy: _[%]_
+* Precision: _[%]_
+* Recall: _[%]_
+* F1 Score: _[%]_
+* Other Metrics: _[Specify]_
+
+
+### 1.3 Deployment Information
+
+**Cloud Platform:**
+- [ ] AWS (Services: _[SageMaker, Lambda, etc.]_)
+- [ ] Azure (Services: _[Azure ML, Cognitive Services, etc.]_)
+- [ ] GCP (Services: _[Vertex AI, Cloud Functions, etc.]_)
+- [ ] On-Premises
+- [ ] Hybrid
+- [ ] Multi-Cloud
+
+**Deployment Type:**
+- [ ] Real-time inference (API endpoint)
+- [ ] Batch processing
+- [ ] Edge deployment
+- [ ] Mobile app
+- [ ] Embedded system
+
+**API Endpoint Details:**
+
+* Endpoint URL: _[URL or N/A]_
+* Authentication: _[None / API Key / OAuth / mTLS / etc.]_
+* Rate Limiting: _[Yes/No - Details]_
+* Public Access: _[Yes/No]_
+* Expected QPS: _[Queries per second]_
+
+**Infrastructure:**
+
+* Compute: _[Instance types, scaling configuration]_
+* Storage: _[S3, Blob Storage, etc. - Buckets/containers]_
+* Network: _[VPC, subnet, firewall configuration]_
+* Monitoring: _[CloudWatch, Azure Monitor, Stackdriver, etc.]_
+
+---
+
+## Section 2: Data Assessment
+
+### 2.1 Training Data Sensitivity
+
+**Data Classification:**
+- [ ] **Level 1 - Public:** Publicly available datasets (MNIST, CIFAR, etc.)
+- [ ] **Level 2 - Internal:** Proprietary but non-sensitive business data
+- [ ] **Level 3 - Confidential:** Business-critical, competitive advantage data
+- [ ] **Level 4 - Restricted:** PII, financial data, or regulated data
+- [ ] **Level 5 - Highly Restricted:** PHI, biometric, state secrets
+
+**Data Types Present (Check all that apply):**
+- [ ] Personally Identifiable Information (PII)
+- [ ] Protected Health Information (PHI)
+- [ ] Financial data (credit cards, bank accounts)
+- [ ] Biometric data (fingerprints, facial recognition)
+- [ ] Geolocation data
+- [ ] Children's data (COPPA)
+- [ ] Trade secrets
+- [ ] Government classified information
+- [ ] None of the above
+
+**Data Volume:**
+
+* Training Samples: _[Number]_
+* Storage Size: _[GB/TB]_
+* Data Sources: _[List sources]_
+
+### 2.2 Data Provenance & Quality
+
+**Data Sources:**
+1. Source: _[Name]_
+   - Trust Level: _[Trusted / Partially Trusted / Untrusted]_
+   - Validation: _[Yes/No - Method]_
+   - Ownership: _[Internal / Third-party / Open source]_
+
+2. Source: _[Name]_
+   - Trust Level: _[Level]_
+   - Validation: _[Method]_
+   - Ownership: _[Type]_
+
+**Data Validation Measures:**
+- [ ] Statistical validation (outlier detection)
+- [ ] Schema validation
+- [ ] Provenance tracking (blockchain, checksums)
+- [ ] Manual review/labeling QA
+- [ ] Automated quality checks
+- [ ] None implemented ⚠️
+
+**Data Poisoning Risk:**
+
+* Risk Level: _[Low/Medium/High/Critical]_
+* Justification: _[Explain why]_
+* Mitigations: _[List measures in place]_
+
+---
+
+## Section 3: Threat Modeling
+
+### 3.1 Adversarial Attack Surface
+
+**Attack Vectors (Check all that apply and rate risk):**
+
+| Attack Type | Applicable? | Risk Level | Evidence/Notes |
+|-------------|-------------|------------|----------------|
+| **Evasion (FGSM/PGD)** | ☐ Yes ☐ No | _[L/M/H/C]_ | _[Notes]_ |
+| **Model Extraction** | ☐ Yes ☐ No | _[L/M/H/C]_ | _[Notes]_ |
+| **Data Poisoning** | ☐ Yes ☐ No | _[L/M/H/C]_ | _[Notes]_ |
+| **Model Inversion** | ☐ Yes ☐ No | _[L/M/H/C]_ | _[Notes]_ |
+| **Membership Inference** | ☐ Yes ☐ No | _[L/M/H/C]_ | _[Notes]_ |
+| **Backdoor Attack** | ☐ Yes ☐ No | _[L/M/H/C]_ | _[Notes]_ |
+| **Prompt Injection (LLMs)** | ☐ Yes ☐ No | _[L/M/H/C]_ | _[Notes]_ |
+| **API Abuse/DoS** | ☐ Yes ☐ No | _[L/M/H/C]_ | _[Notes]_ |
+
+### 3.2 MITRE ATLAS Mapping
+
+**Applicable Tactics & Techniques:**
+
+| Tactic | Technique ID | Technique Name | Mitigation Status |
+|--------|--------------|----------------|-------------------|
+| Reconnaissance | _[ID]_ | _[Name]_ | ☐ Mitigated ☐ Partial ☐ None |
+| Resource Development | _[ID]_ | _[Name]_ | ☐ Mitigated ☐ Partial ☐ None |
+| Initial Access | _[ID]_ | _[Name]_ | ☐ Mitigated ☐ Partial ☐ None |
+| ML Attack Staging | AML.T0043 | Craft Adversarial Data | ☐ Mitigated ☐ Partial ☐ None |
+| Exfiltration | AML.T0024 | Exfiltration via ML API | ☐ Mitigated ☐ Partial ☐ None |
+| Impact | AML.T0040 | ML Model Inference API | ☐ Mitigated ☐ Partial ☐ None |
+
+**Reference:** https://atlas.mitre.org/
+
+### 3.3 Threat Actor Profiles
+
+**Likely Adversaries (Rank by likelihood):**
+
+1. **Threat Actor:** _[e.g., Competitor, Insider, Nation-state, Script kiddie]_
+   - Capability: _[Low/Medium/High]_
+   - Motivation: _[Financial, Espionage, Disruption, etc.]_
+   - Likely Attack: _[Most probable attack vector]_
+
+2. **Threat Actor:** _[Type]_
+   - Capability: _[Level]_
+   - Motivation: _[Type]_
+   - Likely Attack: _[Vector]_
+
+### 3.4 Attack Scenario Modeling
+
+**Scenario 1: [Name]**
+
+* Description: _[Detailed attack scenario]_
+* Attacker Goal: _[What attacker wants to achieve]_
+* Attack Path: _[Step-by-step attack sequence]_
+* Likelihood: _[Low/Medium/High]_
+* Impact: _[Low/Medium/High/Critical]_
+* Risk Score: _[Likelihood × Impact]_
+* Current Defenses: _[What's in place]_
+* Recommended Actions: _[Additional mitigations needed]_
+
+
+**Scenario 2: [Name]**
+
+[Same format as Scenario 1]
+
+---
+
+## Section 4: Risk Scoring
+
+### 4.1 Automated Risk Score
+
+**Using AI Risk Scoring Engine (see risk-engine/):**
+
+```python
+# Assessment input
+assessment = {
+    'model_complexity': _[1-5]_,
+    'training_data_sensitivity': _[1-5]_,
+    'model_transparency': _[1-5]_,
+    'api_accessibility': _[1-5]_,
+    'query_volume': _[1-5]_,
+    'response_detail': _[1-5]_,
+    'evasion_resistance': _[1-5]_,
+    'extraction_resistance': _[1-5]_,
+    'poisoning_resistance': _[1-5]_,
+    'inversion_resistance': _[1-5]_,
+    'authentication': _[1-5]_,
+    'monitoring': _[1-5]_,
+    'input_validation': _[1-5]_
+}
+
+# Run risk engine
+from risk_engine import AIRiskEngine
+
+engine = AIRiskEngine('risk_factors.yaml')
+risk_score = engine.calculate_risk_score(assessment)
+
+print(risk_score.total_score)
+print(risk_score.risk_level)
+print(risk_score.category_scores)
+print(risk_score.recommendations)
+```
+
+**Risk Score Output:**
+```
+Total Score: _[X.XX / 5.00]_
+Risk Level: _[LOW / MEDIUM / HIGH / CRITICAL]_
+
+Category Breakdown:
+- Model Characteristics: _[X.XX]_
+- Deployment Exposure: _[X.XX]_
+- Adversarial Robustness: _[X.XX]_
+- Security Controls: _[X.XX]_
+```
+
+### 4.2 Risk Heat Map
+
+```
+        LIKELIHOOD →
+I   │                                    
+M   │              ┌─────────┐          
+P   │              │  This   │          
+A   │    ┌────┐    │ System  │    ┌────┐
+C   │    │    │    └─────────┘    │    │
+T   │    └────┘                   └────┘
+↓   │                                    
+    └────────────────────────────────────
+     Low    Medium    High    Critical
+              LIKELIHOOD
+```
+
+**Risk Matrix Position:** _[Describe where this system falls]_
+
+---
+
+## Section 5: Adversarial Robustness Testing
+
+### 5.1 Evasion Attack Testing
+
+**Test Method:** FGSM (Fast Gradient Sign Method)
+
+**Test Results:**
+```
+Epsilon: _[0.05, 0.1, 0.15, 0.2, 0.3]_
+Clean Accuracy: _[%]_
+
+Adversarial Accuracy:
+- ε = 0.05: _[%]_
+- ε = 0.10: _[%]_
+- ε = 0.15: _[%]_
+- ε = 0.20: _[%]_
+- ε = 0.30: _[%]_
+
+Attack Success Rate: _[%]_
+Assessment: _[PASS / FAIL / NEEDS IMPROVEMENT]_
+```
+
+**Recommended Threshold:** Accuracy at ε=0.1 should be >80%
+
+### 5.2 Model Extraction Testing
+
+**Test Method:** Query-based extraction with _[N]_ queries
+
+**Test Results:**
+```
+Queries Used: _[Number]_
+Surrogate Accuracy: _[%]_
+Agreement Rate: _[%]_
+Extraction Success: _[YES / NO]_
+Assessment: _[PASS / FAIL]_
+```
+
+**Recommended Threshold:** Extraction should fail with <90% agreement
+
+### 5.3 Data Poisoning Testing
+
+**Test Method:** Inject _[X]_% poisoned samples
+
+**Test Results:**
+```
+Poison Rate: _[%]_
+Clean Accuracy (poisoned model): _[%]_
+Backdoor Success Rate: _[%]_
+Detection: _[Detected / Undetected]_
+Assessment: _[PASS / FAIL]_
+```
+
+**Recommended Threshold:** Poisoning should be detected before deployment
+
+### 5.4 Privacy Testing (Model Inversion)
+
+**Test Method:** Gradient-based reconstruction
+
+**Test Results:**
+```
+Reconstruction Quality: _[SSIM score or qualitative assessment]_
+Membership Inference Accuracy: _[%]_
+Information Leakage: _[Low / Medium / High]_
+Assessment: _[PASS / FAIL]_
+```
+
+**Recommended Threshold:** Membership inference <60% accuracy
+
+---
+
+## Section 6: Security Controls Assessment
+
+### 6.1 Preventive Controls
+
+| Control | Implemented? | Effectiveness | Evidence |
+|---------|-------------|---------------|----------|
+| **Adversarial Training** | ☐ Yes ☐ No ☐ Partial | _[L/M/H]_ | _[Details]_ |
+| **Input Validation** | ☐ Yes ☐ No ☐ Partial | _[L/M/H]_ | _[Details]_ |
+| **Input Preprocessing** | ☐ Yes ☐ No ☐ Partial | _[L/M/H]_ | _[Details]_ |
+| **Rate Limiting** | ☐ Yes ☐ No ☐ Partial | _[L/M/H]_ | _[Details]_ |
+| **Authentication (Strong)** | ☐ Yes ☐ No ☐ Partial | _[L/M/H]_ | _[Details]_ |
+| **Network Isolation (VPC)** | ☐ Yes ☐ No ☐ Partial | _[L/M/H]_ | _[Details]_ |
+| **Differential Privacy** | ☐ Yes ☐ No ☐ Partial | _[L/M/H]_ | _[Details]_ |
+| **Data Validation Pipeline** | ☐ Yes ☐ No ☐ Partial | _[L/M/H]_ | _[Details]_ |
+| **Model Watermarking** | ☐ Yes ☐ No ☐ Partial | _[L/M/H]_ | _[Details]_ |
+
+### 6.2 Detective Controls
+
+| Control | Implemented? | Effectiveness | Evidence |
+|---------|-------------|---------------|----------|
+| **Anomaly Detection** | ☐ Yes ☐ No ☐ Partial | _[L/M/H]_ | _[Details]_ |
+| **Model Monitoring** | ☐ Yes ☐ No ☐ Partial | _[L/M/H]_ | _[Details]_ |
+| **Audit Logging** | ☐ Yes ☐ No ☐ Partial | _[L/M/H]_ | _[Details]_ |
+| **Performance Monitoring** | ☐ Yes ☐ No ☐ Partial | _[L/M/H]_ | _[Details]_ |
+| **Query Pattern Analysis** | ☐ Yes ☐ No ☐ Partial | _[L/M/H]_ | _[Details]_ |
+| **Drift Detection** | ☐ Yes ☐ No ☐ Partial | _[L/M/H]_ | _[Details]_ |
+| **Security Alerts** | ☐ Yes ☐ No ☐ Partial | _[L/M/H]_ | _[Details]_ |
+
+### 6.3 Response Controls
+
+| Control | Implemented? | Effectiveness | Evidence |
+|---------|-------------|---------------|----------|
+| **Incident Response Plan** | ☐ Yes ☐ No ☐ Partial | _[L/M/H]_ | _[Details]_ |
+| **Model Rollback Capability** | ☐ Yes ☐ No ☐ Partial | _[L/M/H]_ | _[Details]_ |
+| **Automated Remediation** | ☐ Yes ☐ No ☐ Partial | _[L/M/H]_ | _[Details]_ |
+| **Backup Models** | ☐ Yes ☐ No ☐ Partial | _[L/M/H]_ | _[Details]_ |
+| **Kill Switch** | ☐ Yes ☐ No ☐ Partial | _[L/M/H]_ | _[Details]_ |
+
+---
+
+## Section 7: Compliance Assessment
+
+### 7.1 Regulatory Requirements
+
+**Applicable Regulations (Check all that apply):**
+
+- [ ] **GDPR** (General Data Protection Regulation)
+  - Right to Explanation: _[Compliant: Yes/No/Partial]_
+  - Data Protection by Design: _[Compliant: Yes/No/Partial]_
+  - Privacy Impact Assessment: _[Completed: Yes/No]_
+  - Compliance Status: _[COMPLIANT / NON-COMPLIANT / PARTIAL]_
+
+- [ ] **HIPAA** (Health Insurance Portability and Accountability Act)
+  - Technical Safeguards: _[Compliant: Yes/No/Partial]_
+  - Access Controls: _[Compliant: Yes/No/Partial]_
+  - Audit Controls: _[Compliant: Yes/No/Partial]_
+  - Compliance Status: _[COMPLIANT / NON-COMPLIANT / PARTIAL]_
+
+- [ ] **CCPA/CPRA** (California Consumer Privacy Act)
+  - Data Minimization: _[Compliant: Yes/No/Partial]_
+  - Purpose Limitation: _[Compliant: Yes/No/Partial]_
+  - Transparency: _[Compliant: Yes/No/Partial]_
+  - Compliance Status: _[COMPLIANT / NON-COMPLIANT / PARTIAL]_
+
+- [ ] **SOC 2** (Service Organization Control 2)
+  - Security: _[Compliant: Yes/No/Partial]_
+  - Availability: _[Compliant: Yes/No/Partial]_
+  - Confidentiality: _[Compliant: Yes/No/Partial]_
+  - Compliance Status: _[COMPLIANT / NON-COMPLIANT / PARTIAL]_
+
+- [ ] **PCI-DSS** (Payment Card Industry Data Security Standard)
+  - Cardholder Data Protection: _[Compliant: Yes/No/Partial]_
+  - Compliance Status: _[COMPLIANT / NON-COMPLIANT / PARTIAL]_
+
+- [ ] **ISO 27001** (Information Security Management)
+  - ISMS Implementation: _[Compliant: Yes/No/Partial]_
+  - Compliance Status: _[COMPLIANT / NON-COMPLIANT / PARTIAL]_
+
+- [ ] **NIST AI RMF** (AI Risk Management Framework)
+  - Governance: _[Implemented: Yes/No/Partial]_
+  - Map: _[Implemented: Yes/No/Partial]_
+  - Measure: _[Implemented: Yes/No/Partial]_
+  - Manage: _[Implemented: Yes/No/Partial]_
+  - Compliance Status: _[COMPLIANT / NON-COMPLIANT / PARTIAL]_
+
+### 7.2 Compliance Gaps
+
+**Identified Gaps:**
+1. Gap: _[Description]_
+   - Regulation: _[Which regulation]_
+   - Severity: _[Critical/High/Medium/Low]_
+   - Remediation Plan: _[What will be done]_
+   - Timeline: _[When]_
+
+2. Gap: _[Description]_
+   - Regulation: _[Which regulation]_
+   - Severity: _[Level]_
+   - Remediation Plan: _[Plan]_
+   - Timeline: _[Date]_
+
+### 7.3 Compliance Evidence
+
+**Supporting Documentation:**
+- [ ] Privacy Impact Assessment (PIA)
+- [ ] Data Protection Impact Assessment (DPIA)
+- [ ] Security audit report
+- [ ] Penetration test results
+- [ ] Model documentation
+- [ ] Training records
+- [ ] Incident response plan
+- [ ] Business continuity plan
+
+---
+
+## Section 8: Cloud-Specific Risks
+
+### 8.1 AWS-Specific Risks (if applicable)
+
+**SageMaker:**
+- [ ] Endpoints in VPC: _[Yes/No]_
+- [ ] Private Link enabled: _[Yes/No]_
+- [ ] Model Monitor configured: _[Yes/No]_
+- [ ] S3 buckets encrypted: _[Yes/No]_
+- [ ] S3 bucket policies secure: _[Yes/No]_
+- [ ] IAM least privilege: _[Yes/No]_
+- [ ] CloudWatch alarms set: _[Yes/No]_
+- [ ] WAF on API Gateway: _[Yes/No]_
+
+**Identified Risks:**
+- _[List AWS-specific risks]_
+
+**Mitigations:**
+- _[List mitigations in place]_
+
+### 8.2 Azure-Specific Risks (if applicable)
+
+**Azure ML:**
+- [ ] Managed endpoints private: _[Yes/No]_
+- [ ] VNet integration: _[Yes/No]_
+- [ ] RBAC configured: _[Yes/No]_
+- [ ] Blob storage private: _[Yes/No]_
+- [ ] Azure Defender enabled: _[Yes/No]_
+- [ ] Network security groups: _[Yes/No]_
+- [ ] Azure Monitor alerts: _[Yes/No]_
+
+**Identified Risks:**
+- _[List Azure-specific risks]_
+
+**Mitigations:**
+- _[List mitigations in place]_
+
+### 8.3 GCP-Specific Risks (if applicable)
+
+**Vertex AI:**
+- [ ] VPC Service Controls: _[Yes/No]_
+- [ ] Private Google Access: _[Yes/No]_
+- [ ] Cloud Armor enabled: _[Yes/No]_
+- [ ] IAM least privilege: _[Yes/No]_
+- [ ] Cloud Storage private: _[Yes/No]_
+- [ ] Cloud Monitoring alerts: _[Yes/No]_
+- [ ] Cloud Audit Logs: _[Yes/No]_
+
+**Identified Risks:**
+- _[List GCP-specific risks]_
+
+**Mitigations:**
+- _[List mitigations in place]_
+
+---
+
+## Section 9: Recommendations & Action Plan
+
+### 9.1 Critical (Immediate - 0-30 days)
+
+| # | Recommendation | Responsible | Due Date | Status |
+|---|----------------|-------------|----------|--------|
+| 1 | _[Action]_ | _[Owner]_ | _[Date]_ | ☐ Not Started ☐ In Progress ☐ Complete |
+| 2 | _[Action]_ | _[Owner]_ | _[Date]_ | ☐ Not Started ☐ In Progress ☐ Complete |
+| 3 | _[Action]_ | _[Owner]_ | _[Date]_ | ☐ Not Started ☐ In Progress ☐ Complete |
+
+### 9.2 High Priority (30-90 days)
+
+| # | Recommendation | Responsible | Due Date | Status |
+|---|----------------|-------------|----------|--------|
+| 1 | _[Action]_ | _[Owner]_ | _[Date]_ | ☐ Not Started ☐ In Progress ☐ Complete |
+| 2 | _[Action]_ | _[Owner]_ | _[Date]_ | ☐ Not Started ☐ In Progress ☐ Complete |
+
+### 9.3 Medium Priority (90-180 days)
+
+| # | Recommendation | Responsible | Due Date | Status |
+|---|----------------|-------------|----------|--------|
+| 1 | _[Action]_ | _[Owner]_ | _[Date]_ | ☐ Not Started ☐ In Progress ☐ Complete |
+| 2 | _[Action]_ | _[Owner]_ | _[Date]_ | ☐ Not Started ☐ In Progress ☐ Complete |
+
+### 9.4 Low Priority (180+ days)
+
+| # | Recommendation | Responsible | Due Date | Status |
+|---|----------------|-------------|----------|--------|
+| 1 | _[Action]_ | _[Owner]_ | _[Date]_ | ☐ Not Started ☐ In Progress ☐ Complete |
+
+---
+
+## Section 10: Ongoing Monitoring
+
+### 10.1 Key Risk Indicators (KRIs)
+
+| KRI | Current Value | Threshold | Frequency | Owner |
+|-----|---------------|-----------|-----------|-------|
+| Model accuracy drift | _[%]_ | _[Alert if drops >5%]_ | Daily | _[Name]_ |
+| Query volume anomaly | _[QPS]_ | _[Alert if >2x normal]_ | Hourly | _[Name]_ |
+| Error rate | _[%]_ | _[Alert if >1%]_ | Real-time | _[Name]_ |
+| Unauthorized access attempts | _[Count]_ | _[Alert if >10/day]_ | Daily | _[Name]_ |
+| Data distribution drift | _[KL divergence]_ | _[Alert if >0.1]_ | Weekly | _[Name]_ |
+
+### 10.2 Review Schedule
+
+| Review Type | Frequency | Next Review | Responsible |
+|-------------|-----------|-------------|-------------|
+| Risk Assessment Update | Quarterly | _[Date]_ | _[Name]_ |
+| Security Audit | Semi-Annual | _[Date]_ | _[Name]_ |
+| Penetration Testing | Annual | _[Date]_ | _[Name]_ |
+| Red Team Exercise | Annual | _[Date]_ | _[Name]_ |
+| Compliance Review | Annual | _[Date]_ | _[Name]_ |
+
+### 10.3 Incident Response Triggers
+
+**Conditions that trigger incident response:**
+1. _[e.g., Model accuracy drops >10% suddenly]_
+2. _[e.g., Unusual query patterns detected (>1000 queries/hour from single IP)]_
+3. _[e.g., Unauthorized model access attempt]_
+4. _[e.g., Data breach or exfiltration detected]_
+5. _[e.g., Regulatory non-compliance identified]_
+
+**Escalation Path:**
+1. **Tier 1:** _[Role]_ → _[Action]_
+2. **Tier 2:** _[Role]_ → _[Action]_
+3. **Tier 3:** _[Role]_ → _[Action]_
+
+---
+
+## Section 11: Appendices
+
+### Appendix A: Testing Evidence
+
+**Attach or reference:**
+- Adversarial robustness test results
+- Penetration test reports
+- Model performance benchmarks
+- Security scan results
+
+### Appendix B: Architecture Diagrams
+
+**Include:**
+- System architecture diagram
+- Data flow diagram
+- Threat model diagram
+- Network topology
+
+### Appendix C: References
+
+**Standards & Frameworks:**
+- NIST AI Risk Management Framework
+- MITRE ATLAS: https://atlas.mitre.org/
+- OWASP Top 10 for LLMs: https://owasp.org/www-project-top-10-for-large-language-model-applications/
+- ISO/IEC 23894:2023 (AI Risk Management)
+
+**Research Papers:**
+- "Explaining and Harnessing Adversarial Examples" (Goodfellow et al., 2014)
+- "Towards Deep Learning Models Resistant to Adversarial Attacks" (Madry et al., 2017)
+- "Stealing Machine Learning Models via Prediction APIs" (Tramèr et al., 2016)
+
+### Appendix D: Change Log
+
+| Version | Date | Author | Changes |
+|---------|------|--------|---------|
+| 1.0 | _[Date]_ | _[Name]_ | Initial assessment |
+| 1.1 | _[Date]_ | _[Name]_ | _[Changes]_ |
+| 2.0 | _[Date]_ | _[Name]_ | _[Major updates]_ |
+
+---
+
+## Section 12: Sign-Off
+
+### Assessment Team
+
+| Name | Role | Signature | Date |
+|------|------|-----------|------|
+| _[Name]_ | Lead Assessor | _[Signature]_ | _[Date]_ |
+| _[Name]_ | Security Engineer | _[Signature]_ | _[Date]_ |
+| _[Name]_ | ML Engineer | _[Signature]_ | _[Date]_ |
+
+### Approvals
+
+| Name | Role | Signature | Date |
+|------|------|-----------|------|
+| _[Name]_ | CISO | _[Signature]_ | _[Date]_ |
+| _[Name]_ | VP Engineering | _[Signature]_ | _[Date]_ |
+| _[Name]_ | Chief Data Scientist | _[Signature]_ | _[Date]_ |
+
+### Deployment Decision
+
+Based on this risk assessment:
+
+- [ ] **APPROVED FOR DEPLOYMENT** - All critical and high-priority risks mitigated
+- [ ] **CONDITIONAL APPROVAL** - Deploy with specific controls: _[List controls]_
+- [ ] **DEPLOYMENT BLOCKED** - Too high risk, must remediate before deployment
+- [ ] **DECOMMISSION RECOMMENDED** - Risk cannot be adequately mitigated
+
+**Decision Rationale:**
+_[Explain the deployment decision]_
+
+---
+
+**END OF RISK ASSESSMENT**
+
+---
+
+## Quick Reference: Risk Levels
+
+| Score Range | Risk Level | Action Required |
+|-------------|-----------|-----------------|
+| 0.0 - 2.0 | 🟢 LOW | Standard monitoring |
+| 2.0 - 3.5 | 🟡 MEDIUM | Enhanced controls recommended |
+| 3.5 - 4.5 | 🟠 HIGH | Remediation required before deployment |
+| 4.5 - 5.0 | 🔴 CRITICAL | Deployment blocked until remediated |
+
+---
+
+**Document Version:** 2.0  
+**Template Maintained By:** AI Security Team  
+**Last Updated:** Week 2, Day 7  
+**Next Template Review:** Week 4
+```
+
+---
+
+### **Create Assessment Example**
+
+Create `docs/baseline_model_assessment.md` (filled-out example):
+
+```markdown
+# AI/ML System Risk Assessment - Baseline MNIST CNN
+
+**System Name:** Baseline MNIST Digit Classifier  
+**Assessment Date:** 2024-01-29  
+**Assessor:** AI Security Team (Week 1-2 Lab)  
+**Classification:** Internal Use Only
+
+---
+
+## Executive Summary
+
+### Quick Risk Overview
+
+| Category | Risk Level | Score | Status |
+|----------|-----------|-------|--------|
+| **Overall Risk** | **HIGH** | **3.85/5.00** | 🟠 |
+| Model Security | Critical | 4.75 | 🔴 |
+| Data Privacy | Low | 1.00 | 🟢 |
+| Deployment Exposure | High | 3.50 | 🟠 |
+| Compliance | Low | 1.25 | 🟢 |
+
+### Key Findings
+1. **CRITICAL:** No adversarial defenses - 85% attack success rate at ε=0.15
+2. **CRITICAL:** Model extraction feasible with 10K queries (94% fidelity)
+3. **HIGH:** No query rate limiting enables systematic extraction
+4. **MEDIUM:** Full probability distribution returned (should be hard labels only)
+
+### Recommended Actions (Top 3)
+1. **Implement adversarial training** (FGSM/PGD with ε=0.1-0.3)
+2. **Add API rate limiting** (100 queries/hour per API key)
+3. **Return hard labels only** (remove probability distribution from responses)
+
+---
+
+## Section 1: System Overview
+
+### 1.1 Use Case Description
+
+**Business Purpose:**
+- Educational demonstration of AI security vulnerabilities
+- Baseline model for Week 1-2 threat lab
+- Reference implementation for attack demonstrations
+
+**Decisions Made:**
+- Classifies handwritten digits (0-9)
+
+**End Users:**
+- Security researchers
+- AI/ML students
+- Internal testing only
+
+### 1.2 Model Information
+
+**Model Type:** ✅ Classification
+
+**Model Architecture:**
+```
+Architecture: SimpleConvNet (Custom CNN)
+Parameters: 101,770
+Input: 28×28 grayscale images
+Output: 10-class probabilities
+Framework: PyTorch 2.0.0
+```
+
+**Training Information:**
+```
+Training Data: MNIST (60,000 images)
+Training Time: 5 minutes (5 epochs)
+Training Cost: $0 (local GPU)
+Last Trained: Week 1, Day 3
+Retraining Frequency: On-demand
+```
+
+**Performance Metrics:**
+```
+Accuracy: 98.5%
+Precision: 98.4%
+Recall: 98.3%
+F1 Score: 98.3%
+```
+
+### 1.3 Deployment Information
+
+**Cloud Platform:** ✅ AWS
+- Services: SageMaker (conceptual), Lambda, API Gateway
+
+**Deployment Type:** ✅ Real-time inference (API endpoint)
+
+**API Endpoint Details:**
+```
+Endpoint URL: https://api-id.execute-api.us-east-1.amazonaws.com/prod/check
+Authentication: API Key (weak)
+Rate Limiting: NO ⚠️
+Public Access: YES ⚠️
+Expected QPS: 10-100
+```
+
+---
+
+## Section 2: Data Assessment
+
+### 2.1 Training Data Sensitivity
+
+**Data Classification:** ✅ Level 1 - Public (MNIST dataset)
+
+**Data Types Present:**
+- ☐ PII
+- ☐ PHI
+- ☐ Financial data
+- ☐ Biometric data
+- ☐ None of the above ✅
+
+**Data Volume:**
+```
+Training Samples: 60,000
+Storage Size: 50 MB
+Data Sources: MNIST (Yann LeCun)
+```
+
+### 2.2 Data Provenance & Quality
+
+**Data Sources:**
+1. Source: MNIST Database
+   - Trust Level: Trusted
+   - Validation: Public benchmark dataset
+   - Ownership: Open source
+
+**Data Validation Measures:**
+- ☐ Statistical validation
+- ☐ Schema validation
+- ☐ Provenance tracking
+- ☐ Manual review
+- ☐ Automated quality checks
+- ✅ None implemented ⚠️ (public dataset, no validation needed)
+
+**Data Poisoning Risk:**
+```
+Risk Level: LOW (for this demo)
+Justification: Using trusted public dataset, no external data ingestion
+Mitigations: N/A for demo purposes
+Note: Would be HIGH if production system with custom data
+```
+
+---
+
+## Section 3: Threat Modeling
+
+### 3.1 Adversarial Attack Surface
+
+| Attack Type | Applicable? | Risk Level | Evidence/Notes |
+|-------------|-------------|------------|----------------|
+| **Evasion (FGSM/PGD)** | ✅ Yes | **CRITICAL** | Week 1: 85% success at ε=0.15 |
+| **Model Extraction** | ✅ Yes | **CRITICAL** | Week 2: 94% fidelity with 10K queries |
+| **Data Poisoning** | ✅ Yes | **HIGH** | Week 2: 98.7% backdoor success |
+| **Model Inversion** | ✅ Yes | **MEDIUM** | Week 2: Reconstructed class features |
+| **Membership Inference** | ✅ Yes | **LOW** | Public dataset, low impact |
+| **Backdoor Attack** | ✅ Yes | **HIGH** | Week 2: 3% poisoning effective |
+| **API Abuse/DoS** | ✅ Yes | **HIGH** | No rate limiting |
+
+### 3.2 MITRE ATLAS Mapping
+
+| Tactic | Technique ID | Technique Name | Mitigation Status |
+|--------|--------------|----------------|-------------------|
+| ML Attack Staging | AML.T0043 | Craft Adversarial Data | ☐ None ⚠️ |
+| ML Model Access | AML.T0040 | Inference API Access | ☐ None ⚠️ |
+| Exfiltration | AML.T0024 | Model Theft via API | ☐ None ⚠️ |
+| Impact | AML.T0015 | Evade ML Model | ☐ None ⚠️ |
+
+---
+
+## Section 4: Risk Scoring
+
+### 4.1 Automated Risk Score
+
+**Assessment Input:**
+```python
+assessment = {
+    'model_complexity': 1,        # <1M parameters
+    'training_data_sensitivity': 1,  # Public data
+    'model_transparency': 3,      # Partially interpretable
+    'api_accessibility': 3,       # Authenticated external
+    'query_volume': 2,            # Moderate
+    'response_detail': 5,         # Full probabilities ⚠️
+    'evasion_resistance': 5,      # None ⚠️
+    'extraction_resistance': 5,   # None ⚠️
+    'poisoning_resistance': 5,    # None ⚠️
+    'inversion_resistance': 5,    # None ⚠️
+    'authentication': 3,          # API key only
+    'monitoring': 4,              # Basic logging
+    'input_validation': 4         # Minimal
+}
+```
+
+**Risk Score Output:**
+```
+Total Score: 3.85 / 5.00
+Risk Level: HIGH 🟠
+
+Category Breakdown:
+- Model Characteristics: 1.67 🟢
+- Deployment Exposure: 3.33 🟠
+- Adversarial Robustness: 5.00 🔴
+- Security Controls: 3.67 🟠
+```
+
+---
+
+## Section 5: Adversarial Robustness Testing
+
+### 5.1 Evasion Attack Testing
+
+**Test Method:** FGSM
+
+**Test Results:**
+```
+Clean Accuracy: 98.5%
+
+Adversarial Accuracy:
+- ε = 0.05: 95.2% (3.3% attack success)
+- ε = 0.10: 82.1% (16.4% attack success)
+- ε = 0.15: 68.7% (29.8% attack success) ⚠️
+- ε = 0.20: 52.3% (46.2% attack success)
+- ε = 0.30: 25.4% (73.1% attack success)
+
+Assessment: FAIL ⚠️ (Should be >80% at ε=0.1)
+```
+
+### 5.2 Model Extraction Testing
+
+**Test Results:**
+```
+Queries Used: 10,000
+Surrogate Accuracy: 95.1%
+Agreement Rate: 94.2%
+Extraction Success: YES ⚠️
+Assessment: FAIL (Extraction should be prevented)
+```
+
+### 5.3 Data Poisoning Testing
+
+**Test Results:**
+```
+Poison Rate: 5%
+Backdoor Success Rate: 94%
+Detection: Undetected ⚠️
+Assessment: FAIL
+```
+
+### 5.4 Privacy Testing
+
+**Test Results:**
+```
+Membership Inference Accuracy: 67.3%
+Information Leakage: LOW (public dataset)
+Assessment: PASS (for public data scenario)
+```
+
+---
+
+## Section 9: Recommendations & Action Plan
+
+### 9.1 Critical (0-30 days)
+
+| # | Recommendation | Responsible | Status |
+|---|----------------|-------------|--------|
+| 1 | Implement adversarial training (FGSM ε=0.1) | ML Team | ☐ Not Started |
+| 2 | Add API rate limiting (100/hour) | DevOps | ☐ Not Started |
+| 3 | Return hard labels only (remove probabilities) | ML Team | ☐ Not Started |
+
+### 9.2 High Priority (30-90 days)
+
+| # | Recommendation | Responsible | Status |
+|---|----------------|-------------|--------|
+| 1 | Deploy in VPC with private subnets | Cloud Team | ☐ Not Started |
+| 2 | Add input preprocessing (JPEG compression) | ML Team | ☐ Not Started |
+| 3 | Implement Model Monitor (CloudWatch) | DevOps | ☐ Not Started |
+
+---
+
+## Section 12: Sign-Off
+
+### Deployment Decision
+
+- ☐ APPROVED FOR DEPLOYMENT
+- ☐ CONDITIONAL APPROVAL
+- ✅ **DEPLOYMENT BLOCKED** - Too high risk for production
+- ☐ DECOMMISSION RECOMMENDED
+
+**Decision Rationale:**
+System is suitable for EDUCATIONAL/RESEARCH purposes only. Multiple critical vulnerabilities identified (no adversarial defenses, easy extraction, no rate limiting). Must NOT be deployed to production without implementing all Critical recommendations.
+
+---
+
+**Assessment Complete**  
+**Overall Risk:** 🟠 HIGH (3.85/5.00)  
+**Deployment Status:** ❌ BLOCKED FOR PRODUCTION
+```
+
+---
+
+## ✅ Week 2 Completion Checklist
+
+```bash
+# Verify all deliverables
+ls -R module1-threat-lab-multicloud/
+
+# Expected structure:
+module1-threat-lab-multicloud/
+├── notebooks/
+│   ├── 01_baseline_model.ipynb ✅
+│   ├── 02_evasion_attack.ipynb ✅
+│   └── week2/
+│       ├── 03_model_extraction.ipynb ✅
+│       ├── 04_data_poisoning.ipynb ✅
+│       └── 05_model_inversion.ipynb ✅
+├── risk-engine/
+│   ├── risk_factors.yaml ✅
+│   ├── risk_engine.py ✅
+│   └── risk_scoring_example.ipynb ✅
+├── cloud/
+│   ├── aws/attack_surface.md ✅
+│   ├── azure/attack_surface.md ✅
+│   └── gcp/attack_surface.md ✅
+├── docs/
+│   ├── threat_model_week1.md ✅
+│   ├── fgsm_attack_results.json ✅
+│   ├── model_extraction_results.json ✅
+│   ├── data_poisoning_results.json ✅
+│   ├── model_inversion_results.json ✅
+│   ├── ai_risk_assessment_template.md ✅
+│   ├── baseline_model_assessment.md ✅
+│   └── case_studies/
+│       ├── 01_sagemaker_extraction.md ✅
+│       └── 02_azure_data_poisoning.md ✅
+└── diagrams/
+    └── week2/
+        ├── risk_score_comparison.png ✅
+        ├── extraction_training_loss.png ✅
+        ├── poisoning_training_curves.png ✅
+        └── model_inversion_comparison.png ✅
+```
+
+---
+
+## 🎯 Week 2 Summary
+
+**What You Built:**
+- ✅ Model extraction attack (94% fidelity with 10K queries)
+- ✅ Data poisoning attacks (label flip + backdoor)
+- ✅ Model inversion + membership inference
+- ✅ Production-ready AI Risk Scoring Engine
+- ✅ Cloud attack surface maps (AWS/Azure/GCP)
+- ✅ 2 detailed case studies
+- ✅ Comprehensive risk assessment template
+
+**Key Metrics:**
+- Lines of code: ~2,500
+- Documentation pages: ~150
+- Attack demonstrations: 4
+- Risk assessments: 4 scenarios
+- Total time invested: 10-12 hours
+
+**Portfolio Value:**
+- ✅ Demonstrates advanced security knowledge
+- ✅ Shows production system thinking
+- ✅ Cloud security expertise (AWS/Azure/GCP)
+- ✅ Risk assessment capability
+- ✅ Technical depth + business context
+- ✅ Ready for CISO/Security Architect interviews!
+
+---
+
+## 📦 Deliverables Summary
+
+### **1. Threat Lab Repository** ✅
+Complete working demonstrations of:
+- Evasion attacks (FGSM)
+- Model extraction
+- Data poisoning (label flip + backdoor)
+- Model inversion + membership inference
+
+### **2. AI Risk Assessment Template** ✅
+Production-ready template covering:
+- MITRE ATLAS mapping
+- OWASP Top 10 alignment
+- Compliance frameworks (GDPR, HIPAA, etc.)
+- Cloud-specific risks
+- Automated risk scoring
+
+### **3. Supporting Documentation** ✅
+- Threat models
+- Attack surface maps
+- Case studies
+- Architecture diagrams
+- Risk scoring engine
+
+---
+
+🎉 **Congratulations! You've completed Week 2!**
+
+This is now a comprehensive AI security portfolio demonstrating:
+- Offensive security skills (red team)
+- Defensive strategies (blue team)
+- Risk assessment expertise
+- Cloud security knowledge
+- Production system thinking
