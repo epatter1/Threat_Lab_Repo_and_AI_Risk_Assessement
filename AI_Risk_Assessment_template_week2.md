@@ -4991,7 +4991,6 @@ Create `docs/ai_risk_assessment_template.md`:
 ## AI/ML System Risk Assessment Template
 
 **Version:** 2.0  
-**Last Updated:** Week 2, Day 7  
 **Framework:** NIST AI RMF + MITRE ATLAS + OWASP Top 10 for LLMs
 
 ---
@@ -5709,9 +5708,7 @@ _[Explain the deployment decision]_
 
 **Document Version:** 2.0  
 **Template Maintained By:** AI Security Team  
-**Last Updated:** Week 2, Day 7  
 **Next Template Review:** Week 4
-```
 
 ---
 
