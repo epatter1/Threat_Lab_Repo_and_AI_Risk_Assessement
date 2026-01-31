@@ -14,7 +14,7 @@ Foundation for an AI threat lab with adversarial ML attack demonstrations
 **Time:** 6-8 hours  
 **Prerequisites:** Python 3.9+, basic ML knowledge
 
-**Week2:** [AI Risk Assessment Template](https://github.com/epatter1/Threat_Lab_Repo_and_AI_Risk_Assessement/blob/main/AI_Risk_Assessment_template_week2.md) - Model Extraction, Data Poisoning, Model Inversion, Risk Engine
+**Week2:** [Advanced AI Attacks + Risk Engine](https://github.com/epatter1/Threat_Lab_Repo_and_AI_Risk_Assessement/blob/main/Walkthrough_week2.md)
 
 ---
 
@@ -1773,4 +1773,4 @@ module1-threat-lab-multicloud/
 
 ---
 
-**Next:** [Week 2 Walkthrough](https://github.com/epatter1/Threat_Lab_Repo_and_AI_Risk_Assessement/blob/main/AI_Risk_Assessment_template_week2.md) - Model Extraction, Data Poisoning, Model Inversion, Risk Engine
+**Next:** [Week 2 Walkthrough](https://github.com/epatter1/Threat_Lab_Repo_and_AI_Risk_Assessement/blob/main/Walkthrough_week2.md) - Advanced AI Attacks + Risk Engine
